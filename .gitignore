@@ -1,4 +1,4 @@
-# Created by https://www.toptal.com/developers/gitignore/api/gradle,intellij,java,macos
+    # Created by https://www.toptal.com/developers/gitignore/api/gradle,intellij,java,macos
 # Edit at https://www.toptal.com/developers/gitignore?templates=gradle,intellij,java,macos
 
 ### Intellij ###
@@ -201,3 +201,7 @@ gradle-app.setting
 *.hprof
 
 # End of https://www.toptal.com/developers/gitignore/api/gradle,intellij,java,macos
+
+
+.idea/misc.xml
+.idea/encodings.xml
