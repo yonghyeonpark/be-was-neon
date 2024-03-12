@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RequestHandler implements Runnable {
 
@@ -29,6 +31,7 @@ public class RequestHandler implements Runnable {
             String line = br.readLine();
             logger.debug("request-line : " + line);
             String url = getUrl(line);
+            logger.debug("url : " + url);
 
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
             File file = new File(DEFAULT_PATH + url);
@@ -48,6 +51,23 @@ public class RequestHandler implements Runnable {
     private String getUrl(String line) {
         String[] requestLine = line.split(" ");
         return requestLine[1];
+    }
+
+    private String getQuery(String url) {
+        return url.split("\\?")[1];
+    }
+
+    private Map<String, String> parseQuery(String query) {
+        Map<String, String> parameters = new HashMap<>();
+        if (query == null || query.isEmpty()) {
+            return parameters;
+        }
+        String[] queryArr = query.split("&");
+        for (String keyValue : queryArr) {
+            String[] split = keyValue.split("=");
+            parameters.put(split[0], split[1]);
+        }
+        return parameters;
     }
 
     private void response200Header(DataOutputStream dos, int lengthOfBodyContent) {
