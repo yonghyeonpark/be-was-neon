@@ -1,5 +1,7 @@
 package webserver;
 
+import db.Database;
+import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,8 +35,23 @@ public class RequestHandler implements Runnable {
             String url = getUrl(line);
             logger.debug("url : " + url);
 
+            String[] split = url.split("\\?");
+            String path = split[0];
+            logger.debug("path : " + path);
+            // 요청 url에 쿼리문이 포함돼있을 때, 동작
+            if (split.length == 2) {
+                String query = split[1];
+
+                Map<String, String> parameters = parseQuery(query);
+                User joinUser = new User(parameters.get("userId"),
+                        parameters.get("password"),
+                        parameters.get("name"),
+                        parameters.get("email"));
+                Database.addUser(joinUser);
+            }
+
             // TODO 사용자 요청에 대한 처리는 이 곳에 구현하면 된다.
-            File file = new File(DEFAULT_PATH + url);
+            File file = new File(DEFAULT_PATH + path);
             byte[] bytes = new byte[(int) file.length()];
             try (FileInputStream inputStream = new FileInputStream(file)) {
                 inputStream.read(bytes);
@@ -51,10 +68,6 @@ public class RequestHandler implements Runnable {
     private String getUrl(String line) {
         String[] requestLine = line.split(" ");
         return requestLine[1];
-    }
-
-    private String getQuery(String url) {
-        return url.split("\\?")[1];
     }
 
     private Map<String, String> parseQuery(String query) {
