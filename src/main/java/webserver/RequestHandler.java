@@ -54,7 +54,7 @@ public class RequestHandler implements Runnable {
             httpRequest.printHeaderLineLog();
 
             HttpResponse httpResponse = new HttpResponse();
-            String contentType = httpResponse.getContentType(path);
+            String contentType = httpRequest.getContentType(path);
             DataOutputStream dos = new DataOutputStream(out);
             byte[] file = httpRequest.readFile(DEFAULT_PATH + path);
             // 해당 경로에 파일이 존재하지 않을 때

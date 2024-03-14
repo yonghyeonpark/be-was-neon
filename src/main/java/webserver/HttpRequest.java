@@ -66,4 +66,14 @@ public class HttpRequest {
             logger.debug("[header-line] {}", headerLine);
         }
     }
+
+    public String getContentType(String path) {
+        logger.debug("Path : {}", path);
+        for (ContentType contentType : ContentType.values()) {
+            if (path.contains(contentType.getName())) {
+                return contentType.getProcess();
+            }
+        }
+        return "text/html";
+    }
 }
