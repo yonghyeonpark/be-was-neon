@@ -38,9 +38,7 @@ public class RequestHandler implements Runnable {
             if (splitTarget.length == 2) {
                 String query = splitTarget[1];
                 Map<String, String> parameters = httpRequest.parseQuery(query);
-                if (path.equals("/registration/index.html")) {
-                    QueryProcessor.userJoin(parameters);
-                }
+                QueryProcessor.userJoin(parameters);
             }
 
             // 요청 헤더 처리
