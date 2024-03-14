@@ -18,6 +18,6 @@ public class QueryProcessor {
                 parameters.get("name"),
                 parameters.get("email"));
         Database.addUser(joinUser);
-        logger.debug("joinUser : " + joinUser);
+        logger.debug("joinUser : {}", joinUser);
     }
 }

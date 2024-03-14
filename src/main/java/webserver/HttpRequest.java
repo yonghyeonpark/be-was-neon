@@ -63,7 +63,7 @@ public class HttpRequest {
 
     public void printHeaderLineLog() {
         for (String headerLine : headerLines) {
-            logger.debug("[header-line] " + headerLine);
+            logger.debug("[header-line] {}", headerLine);
         }
     }
 }
