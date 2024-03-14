@@ -1,7 +1,5 @@
 package webserver;
 
-import db.Database;
-import model.User;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,8 +14,8 @@ import java.util.Map;
 
 public class HttpRequest {
 
-    private static final String DEFAULT_PATH = "./src/main/resources/static";
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+
     private final List<String> headerLines;
 
     public HttpRequest() {
@@ -42,22 +40,17 @@ public class HttpRequest {
         return parameters;
     }
 
-    public void processJoin(Map<String, String> parameters) {
-        User joinUser = new User(parameters.get("userId"),
-                parameters.get("password"),
-                parameters.get("name"),
-                parameters.get("email"));
-        Database.addUser(joinUser);
-        logger.debug("joinUser : " + joinUser);
-    }
-
     public byte[] readFile(String path) {
-        File file = new File(DEFAULT_PATH + path);
+        File file = new File(path);
+        if (!file.isFile()) {
+            logger.error("path가 올바르지 않습니다.");
+            return new byte[0];
+        }
         byte[] bytes = new byte[(int) file.length()];
         try (FileInputStream inputStream = new FileInputStream(file)) {
             inputStream.read(bytes);
         } catch (FileNotFoundException e) {
-            logger.error("path가 올바르지 않습니다.");
+
         } catch (IOException e) {
             e.printStackTrace();
         }
