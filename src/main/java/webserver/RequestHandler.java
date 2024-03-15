@@ -15,22 +15,23 @@ public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
     private final Socket connection;
+    private final HttpRequest httpRequest;
+    private final HttpResponse httpResponse;
 
-    public RequestHandler(Socket connection) {
+    public RequestHandler(Socket connection, HttpRequest httpRequest, HttpResponse httpResponse) {
         this.connection = connection;
+        this.httpRequest = httpRequest;
+        this.httpResponse = httpResponse;
     }
-
-    // 닫아야하는 I/O?
+    
     public void run() {
         logger.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
                 connection.getPort());
         try (InputStream in = connection.getInputStream();
              OutputStream out = connection.getOutputStream()) {
             BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-
             // 사용자 요청 메시지의 request line을 읽어들임
             String line = br.readLine();
-            HttpRequest httpRequest = new HttpRequest();
             String target = httpRequest.getTarget(line);
 
             String[] splitTarget = target.split("\\?");
@@ -51,7 +52,6 @@ public class RequestHandler implements Runnable {
             }
             httpRequest.printHeaderLineLog();
 
-            HttpResponse httpResponse = new HttpResponse();
             String contentType = httpRequest.getContentType(path);
             DataOutputStream dos = new DataOutputStream(out);
             byte[] file = httpRequest.readFile(DEFAULT_PATH + path);
