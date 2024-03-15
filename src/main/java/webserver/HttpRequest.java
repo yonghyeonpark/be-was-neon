@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -32,7 +33,8 @@ public class HttpRequest {
         if (query == null || query.isEmpty()) {
             return parameters;
         }
-        String[] queryArr = query.split("&");
+        String decodingQuery = URLDecoder.decode(query);
+        String[] queryArr = decodingQuery.split("&");
         for (String keyValue : queryArr) {
             String[] split = keyValue.split("=");
             parameters.put(split[0], split[1]);
