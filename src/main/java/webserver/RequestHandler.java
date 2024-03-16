@@ -31,7 +31,6 @@ public class RequestHandler implements Runnable {
             String startLine = httpRequest.getStartLine(br);
             String target = httpRequest.getTarget(startLine);
 
-            // request에 isExistQuery 추가,
             String[] splitTarget = target.split("\\?");
             String path = splitTarget[0];
             if (splitTarget.length == 2) {
@@ -45,13 +44,13 @@ public class RequestHandler implements Runnable {
 
             String contentType = httpRequest.getContentType(path);
             DataOutputStream dos = new DataOutputStream(out);
-            HttpResponse httpResponse = new HttpResponse();
             byte[] file = httpRequest.readFile(DEFAULT_PATH + path);
+
             // 해당 경로에 파일이 존재하지 않을 때
+            HttpResponse httpResponse = new HttpResponse();
             if (file == null) {
-                byte[] bytes = "<h1>File Not Found!</h1>".getBytes();
-                httpResponse.response404Header(dos, bytes.length, contentType);
-                httpResponse.responseBody(dos, bytes);
+                httpResponse.response404Header(dos, contentType);
+                httpResponse.responseBody(dos);
                 return;
             }
             httpResponse.response200Header(dos, file.length, contentType);

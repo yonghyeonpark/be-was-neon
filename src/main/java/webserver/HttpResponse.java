@@ -9,6 +9,7 @@ import java.io.IOException;
 public class HttpResponse {
 
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+    private static final String NOT_FOUND_ERROR_MESSAGE = "<h1>File Not Found!</h1>";
 
     public void response200Header(DataOutputStream dos, int lengthOfBodyContent, String contentType) {
         try {
@@ -21,11 +22,11 @@ public class HttpResponse {
         }
     }
 
-    public void response404Header(DataOutputStream dos, int lengthOfBodyContent, String contentType) {
+    public void response404Header(DataOutputStream dos, String contentType) {
         try {
             dos.writeBytes("HTTP/1.1 404 Not Found\r\n");
             dos.writeBytes("Content-Type: "+ contentType + "\r\n");
-            dos.writeBytes("Content-Length: " + lengthOfBodyContent + "\r\n");
+            dos.writeBytes("Content-Length: " + NOT_FOUND_ERROR_MESSAGE.length() + "\r\n");
             dos.writeBytes("\r\n");
         } catch (IOException e) {
             logger.error(e.getMessage());
@@ -35,6 +36,15 @@ public class HttpResponse {
     public void responseBody(DataOutputStream dos, byte[] body) {
         try {
             dos.write(body, 0, body.length);
+            dos.flush();
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
+    public void responseBody(DataOutputStream dos) {
+        try {
+            dos.write(NOT_FOUND_ERROR_MESSAGE.getBytes(), 0, NOT_FOUND_ERROR_MESSAGE.length());
             dos.flush();
         } catch (IOException e) {
             logger.error(e.getMessage());
