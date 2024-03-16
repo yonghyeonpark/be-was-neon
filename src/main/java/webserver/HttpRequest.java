@@ -3,10 +3,7 @@ package webserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -17,10 +14,21 @@ public class HttpRequest {
 
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
-    private final List<String> headerLines;
+    public String getStartLine(BufferedReader br) throws IOException {
+        return br.readLine();
+    }
 
-    public HttpRequest() {
-        this.headerLines = new ArrayList<>();
+    public List<String> getHeaderLines(BufferedReader br) throws IOException {
+        List<String> headerLines = new ArrayList<>();
+        String headerLine;
+        while (true) {
+            headerLine = br.readLine();
+            if (headerLine.isEmpty()) {
+                break;
+            }
+            headerLines.add(headerLine);
+        }
+        return headerLines;
     }
 
     public String getTarget(String line) {
@@ -59,11 +67,7 @@ public class HttpRequest {
         return bytes;
     }
 
-    public void addHeaderLine(String headerLine) {
-        headerLines.add(headerLine);
-    }
-
-    public void printHeaderLineLog() {
+    public void printHeaderLinesLog(List<String> headerLines) {
         for (String headerLine : headerLines) {
             logger.debug("[header-line] {}", headerLine);
         }

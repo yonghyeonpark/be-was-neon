@@ -28,9 +28,10 @@ public class RequestHandler implements Runnable {
             BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
             // 사용자 요청 메시지의 request line을 읽어들임
             HttpRequest httpRequest = new HttpRequest();
-            String line = br.readLine();
-            String target = httpRequest.getTarget(line);
+            String startLine = httpRequest.getStartLine(br);
+            String target = httpRequest.getTarget(startLine);
 
+            // request에 isExistQuery 추가,
             String[] splitTarget = target.split("\\?");
             String path = splitTarget[0];
             if (splitTarget.length == 2) {
@@ -40,14 +41,7 @@ public class RequestHandler implements Runnable {
             }
 
             // 요청 헤더 처리
-            while (true) {
-                line = br.readLine();
-                if (line.isEmpty()) {
-                    break;
-                }
-                httpRequest.addHeaderLine(line);
-            }
-            httpRequest.printHeaderLineLog();
+            httpRequest.printHeaderLinesLog(httpRequest.getHeaderLines(br));
 
             String contentType = httpRequest.getContentType(path);
             DataOutputStream dos = new DataOutputStream(out);
