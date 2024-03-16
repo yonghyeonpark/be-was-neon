@@ -15,15 +15,11 @@ public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
     private final Socket connection;
-    private final HttpRequest httpRequest;
-    private final HttpResponse httpResponse;
 
-    public RequestHandler(Socket connection, HttpRequest httpRequest, HttpResponse httpResponse) {
+    public RequestHandler(Socket connection) {
         this.connection = connection;
-        this.httpRequest = httpRequest;
-        this.httpResponse = httpResponse;
     }
-    
+
     public void run() {
         logger.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
                 connection.getPort());
@@ -31,6 +27,7 @@ public class RequestHandler implements Runnable {
              OutputStream out = connection.getOutputStream()) {
             BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
             // 사용자 요청 메시지의 request line을 읽어들임
+            HttpRequest httpRequest = new HttpRequest();
             String line = br.readLine();
             String target = httpRequest.getTarget(line);
 
@@ -54,6 +51,7 @@ public class RequestHandler implements Runnable {
 
             String contentType = httpRequest.getContentType(path);
             DataOutputStream dos = new DataOutputStream(out);
+            HttpResponse httpResponse = new HttpResponse();
             byte[] file = httpRequest.readFile(DEFAULT_PATH + path);
             // 해당 경로에 파일이 존재하지 않을 때
             if (file.length == 0) {
