@@ -54,7 +54,7 @@ public class HttpRequest {
         File file = new File(path);
         if (!file.isFile()) {
             logger.error("path가 올바르지 않습니다.");
-            return new byte[0];
+            return null;
         }
         byte[] bytes = new byte[(int) file.length()];
         try (FileInputStream inputStream = new FileInputStream(file)) {

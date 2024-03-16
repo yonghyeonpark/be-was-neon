@@ -48,13 +48,12 @@ public class RequestHandler implements Runnable {
             HttpResponse httpResponse = new HttpResponse();
             byte[] file = httpRequest.readFile(DEFAULT_PATH + path);
             // 해당 경로에 파일이 존재하지 않을 때
-            if (file.length == 0) {
+            if (file == null) {
                 byte[] bytes = "<h1>File Not Found!</h1>".getBytes();
                 httpResponse.response404Header(dos, bytes.length, contentType);
                 httpResponse.responseBody(dos, bytes);
                 return;
             }
-
             httpResponse.response200Header(dos, file.length, contentType);
             httpResponse.responseBody(dos, file);
         } catch (IOException e) {
