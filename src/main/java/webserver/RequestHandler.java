@@ -26,19 +26,18 @@ public class RequestHandler implements Runnable {
         try (InputStream in = connection.getInputStream();
              OutputStream out = connection.getOutputStream()) {
             BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+
             // 사용자 요청 메시지의 request line을 읽어들임
             HttpRequest httpRequest = new HttpRequest();
             String startLine = httpRequest.getStartLine(br);
-            String target = httpRequest.getTarget(startLine);
+            String[] target = httpRequest.getTarget(startLine);
 
-            String[] splitTarget = target.split("\\?");
-            String path = splitTarget[0];
-            if (splitTarget.length == 2) {
-                String query = splitTarget[1];
+            String path = target[0];
+            if (httpRequest.isExistQuery(target)) {
+                String query = target[1];
                 Map<String, String> parameters = httpRequest.parseQuery(query);
                 QueryProcessor.userJoin(parameters);
             }
-
             // 요청 헤더 처리
             httpRequest.printHeaderLinesLog(httpRequest.getHeaderLines(br));
 

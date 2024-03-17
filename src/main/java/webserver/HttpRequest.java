@@ -31,9 +31,9 @@ public class HttpRequest {
         return headerLines;
     }
 
-    public String getTarget(String line) {
+    public String[] getTarget(String line) {
         String[] requestLine = line.split(" ");
-        return requestLine[1];
+        return requestLine[1].split("\\?");
     }
 
     public Map<String, String> parseQuery(String query) {
@@ -81,5 +81,9 @@ public class HttpRequest {
             }
         }
         return "text/html";
+    }
+
+    public boolean isExistQuery(String[] target) {
+        return target.length == 2;
     }
 }

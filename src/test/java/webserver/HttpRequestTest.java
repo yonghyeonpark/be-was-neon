@@ -18,10 +18,10 @@ public class HttpRequestTest {
     }
 
     @Test
-    @DisplayName("request line을 공백 기준으로 나누어, 두 번째(인덱스1)에 해당하는 요청 target을 얻습니다.")
+    @DisplayName("request line을 공백 기준으로 나누어, 두 번째(인덱스1)에 해당하는 요청 target을 얻고, 해당 target의 uri와 query문을 배열에 나눠 담습니다.")
     void getRequestTarget() {
-        String requestLine = "GET /registration/index.html HTTP/1.1";
-        assertThat(httpRequest.getTarget(requestLine)).isEqualTo("/registration/index.html");
+        String requestLine = "GET /registration/index.html?name=park&gender=male HTTP/1.1";
+        assertThat(httpRequest.getTarget(requestLine)).isEqualTo(new String[]{"/registration/index.html", "name=park&gender=male"});
     }
 
     @Test
