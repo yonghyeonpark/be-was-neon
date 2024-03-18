@@ -1,4 +1,4 @@
-package webserver;
+package webserver.httprequest;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -15,13 +15,6 @@ public class HttpRequestTest {
     @BeforeEach
     void setUp() {
         httpRequest = new HttpRequest();
-    }
-
-    @Test
-    @DisplayName("request line을 공백 기준으로 나누어, 두 번째(인덱스1)에 해당하는 요청 target을 얻고, 해당 target의 uri와 query문을 배열에 나눠 담습니다.")
-    void getRequestTarget() {
-        String requestLine = "GET /registration/index.html?name=park&gender=male HTTP/1.1";
-        assertThat(httpRequest.getTarget(requestLine)).isEqualTo(new String[]{"/registration/index.html", "name=park&gender=male"});
     }
 
     @Test
@@ -68,18 +61,5 @@ public class HttpRequestTest {
     void getSvgContentType() {
         String path = "/bookMark.svg";
         assertThat(httpRequest.getContentType(path)).isEqualTo("image/svg+xml");
-    }
-
-    // isExistQuery 테스트 추가
-    @Test
-    @DisplayName("target에 query문이 존재하면 true를 반환합니다.")
-    void shouldReturnTrueIfTargetHasQuery() {
-        assertThat(httpRequest.isExistQuery(new String[]{"/registration/index.html", "name=park&gender=male"})).isTrue();
-    }
-
-    @Test
-    @DisplayName("target에 query문이 존재하지 않으면 false를 반환합니다.")
-    void shouldReturnTrueIfTargetHasNotQuery() {
-        assertThat(httpRequest.isExistQuery(new String[]{"/registration/index.html"})).isFalse();
     }
 }
