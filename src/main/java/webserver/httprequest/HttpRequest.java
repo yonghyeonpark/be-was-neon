@@ -1,57 +1,39 @@
-package webserver;
+package webserver.httprequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import webserver.ContentType;
+import webserver.RequestHandler;
 
 import java.io.*;
 import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class HttpRequest {
 
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
-    public String getStartLine(BufferedReader br) throws IOException {
-        return br.readLine();
+    private StartLine startLine;
+    private Map<String, String> headers;
+
+    public void readStartLine(BufferedReader br) throws IOException {
+        startLine = new StartLine(br.readLine());
     }
 
-    public List<String> getHeaderLines(BufferedReader br) throws IOException {
-        List<String> headerLines = new ArrayList<>();
-        String line;
-
+    public void readHeaderLines(BufferedReader br) throws IOException {
+        headers = new HashMap<>();
         String headerLine;
         while (true) {
             headerLine = br.readLine();
             if (headerLine.isEmpty()) {
                 break;
             }
-            headerLines.add(headerLine);
+            String[] split = headerLine.split(":", 2);
+            if (split.length == 2) {
+                headers.put(split[0].trim(), split[1].trim());
+            }
         }
-
-        /*while ((line = br.readLine()) != null && !line.isEmpty()) {
-            headerLines.add(line);
-        }*/
-        return headerLines;
-    }
-
-    public String getBody(BufferedReader br) throws IOException {
-        StringBuilder bodyBuilder = new StringBuilder();
-        String line;
-
-        while ((line = br.readLine()) != null) {
-            logger.debug("bodyLine:{}", line);
-            bodyBuilder.append(line);
-            bodyBuilder.append("\n"); // 각 라인을 다시 줄바꿈으로 추가
-        }
-        return bodyBuilder.toString();
-    }
-
-    public String[] getTarget(String line) {
-        String[] requestLine = line.split(" ");
-        return requestLine[1].split("\\?");
     }
 
     public Map<String, String> parseQuery(String query) {
@@ -85,23 +67,19 @@ public class HttpRequest {
         return bytes;
     }
 
-    public void printHeaderLinesLog(List<String> headerLines) {
-        for (String headerLine : headerLines) {
-            logger.debug("[header-line] {}", headerLine);
+    public void printHeaderLinesLog() {
+        for (Map.Entry<String, String> headerLine: headers.entrySet()) {
+            logger.debug("[header-line] {} = {}", headerLine.getKey(), headerLine.getValue());
         }
     }
 
     public String getContentType(String path) {
-        logger.debug("Path : {}", path);
+        logger.debug("path:{}", path);
         for (ContentType contentType : ContentType.values()) {
             if (path.contains(contentType.getName())) {
                 return contentType.getProcess();
             }
         }
         return "text/html";
-    }
-
-    public boolean isExistQuery(String[] target) {
-        return target.length == 2;
     }
 }
