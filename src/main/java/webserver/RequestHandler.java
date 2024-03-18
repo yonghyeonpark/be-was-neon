@@ -2,7 +2,7 @@ package webserver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import service.QueryProcessor;
+import webserver.httprequest.HttpRequest;
 
 import java.io.*;
 import java.net.Socket;
@@ -26,24 +26,39 @@ public class RequestHandler implements Runnable {
         try (InputStream in = connection.getInputStream();
              OutputStream out = connection.getOutputStream()) {
             BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-
-            // 사용자 요청 메시지의 request line을 읽어들임
+            
             HttpRequest httpRequest = new HttpRequest();
-            String startLine = httpRequest.getStartLine(br);
-            String[] target = httpRequest.getTarget(startLine);
+            httpRequest.readStartLine(br);
 
-            String path = target[0];
-            if (httpRequest.isExistQuery(target)) {
+            // 요청 헤더 처리
+            httpRequest.readHeaderLines(br);
+            Map<String, String> headers = httpRequest.getHeaders();
+            logger.debug("content-length:{}", headers.get("Content-Length"));
+            httpRequest.printHeaderLinesLog();
+
+            String method = httpRequest.getMethod();
+            logger.debug("method:{}", method);
+            String target = httpRequest.getTarget();
+            logger.debug("target:{}", target);
+
+            if (method.equalsIgnoreCase("POST")) {
+                String path = target;
+                logger.debug("path:{}", path);
+                logger.debug("Content-Length:{}", Integer.parseInt(headers.get("Content-Length")));
+                httpRequest.getBody(br, Integer.parseInt(headers.get("Content-Length")));
+            }
+
+            /*if (httpRequest.isExistQuery(target)) {
                 String query = target[1];
                 Map<String, String> parameters = httpRequest.parseQuery(query);
+                logger.debug("parameters:{}", parameters);
                 QueryProcessor.userJoin(parameters);
-            }
-            // 요청 헤더 처리
-            httpRequest.printHeaderLinesLog(httpRequest.getHeaderLines(br));
+                logger.debug("body:{}", httpRequest.getBody(br));
+            }*/
 
-            String contentType = httpRequest.getContentType(path);
+            String contentType = httpRequest.getContentType(target);
             DataOutputStream dos = new DataOutputStream(out);
-            byte[] file = httpRequest.readFile(DEFAULT_PATH + path);
+            byte[] file = httpRequest.readFile(DEFAULT_PATH + target);
 
             // 해당 경로에 파일이 존재하지 않을 때
             HttpResponse httpResponse = new HttpResponse();
