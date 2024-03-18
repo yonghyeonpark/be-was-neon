@@ -69,4 +69,17 @@ public class HttpRequestTest {
         String path = "/bookMark.svg";
         assertThat(httpRequest.getContentType(path)).isEqualTo("image/svg+xml");
     }
+
+    // isExistQuery 테스트 추가
+    @Test
+    @DisplayName("target에 query문이 존재하면 true를 반환합니다.")
+    void shouldReturnTrueIfTargetHasQuery() {
+        assertThat(httpRequest.isExistQuery(new String[]{"/registration/index.html", "name=park&gender=male"})).isTrue();
+    }
+
+    @Test
+    @DisplayName("target에 query문이 존재하지 않으면 false를 반환합니다.")
+    void shouldReturnTrueIfTargetHasNotQuery() {
+        assertThat(httpRequest.isExistQuery(new String[]{"/registration/index.html"})).isFalse();
+    }
 }
