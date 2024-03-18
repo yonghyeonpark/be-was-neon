@@ -20,6 +20,8 @@ public class HttpRequest {
 
     public List<String> getHeaderLines(BufferedReader br) throws IOException {
         List<String> headerLines = new ArrayList<>();
+        String line;
+
         String headerLine;
         while (true) {
             headerLine = br.readLine();
@@ -28,7 +30,23 @@ public class HttpRequest {
             }
             headerLines.add(headerLine);
         }
+
+        /*while ((line = br.readLine()) != null && !line.isEmpty()) {
+            headerLines.add(line);
+        }*/
         return headerLines;
+    }
+
+    public String getBody(BufferedReader br) throws IOException {
+        StringBuilder bodyBuilder = new StringBuilder();
+        String line;
+
+        while ((line = br.readLine()) != null) {
+            logger.debug("bodyLine:{}", line);
+            bodyBuilder.append(line);
+            bodyBuilder.append("\n"); // 각 라인을 다시 줄바꿈으로 추가
+        }
+        return bodyBuilder.toString();
     }
 
     public String[] getTarget(String line) {
