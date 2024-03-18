@@ -36,6 +36,13 @@ public class HttpRequest {
         }
     }
 
+    public String getBody(BufferedReader br, int contentLength) throws IOException {
+        char[] body = new char[contentLength];
+        br.read(body);
+        logger.debug("bodyLine:{}", new String(body));
+        return new String(body);
+    }
+
     public Map<String, String> parseQuery(String query) {
         Map<String, String> parameters = new HashMap<>();
         if (query == null || query.isEmpty()) {
@@ -81,5 +88,17 @@ public class HttpRequest {
             }
         }
         return "text/html";
+    }
+
+    public String getMethod() {
+        return startLine.getMethod();
+    }
+
+    public String getTarget() {
+        return startLine.getTarget();
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
     }
 }
