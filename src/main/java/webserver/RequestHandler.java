@@ -40,7 +40,7 @@ public class RequestHandler implements Runnable {
             DataOutputStream dos = new DataOutputStream(out);
             String target = httpRequest.getTarget();
             // 회원가입 요청에 대한 처리
-            if (httpRequest.getMethod().equalsIgnoreCase("POST") && target.equals("/user")) {
+            if (httpRequest.getMethod().equalsIgnoreCase("POST") && target.equals("/user/create")) {
                 String body = httpRequest.getBody(br, Integer.parseInt(headers.get("Content-Length")));
                 Map<String, String> parameters = httpRequest.parseQuery(body);
                 QueryProcessor.userJoin(parameters);
