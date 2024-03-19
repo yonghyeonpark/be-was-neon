@@ -17,12 +17,15 @@ public class HttpRequest {
     private StartLine startLine;
     private Map<String, String> headers;
 
+    public HttpRequest() {
+        this.headers = new HashMap<>();
+    }
+
     public void readStartLine(BufferedReader br) throws IOException {
         startLine = new StartLine(br.readLine());
     }
 
     public void readHeaderLines(BufferedReader br) throws IOException {
-        headers = new HashMap<>();
         String headerLine;
         while (true) {
             headerLine = br.readLine();
@@ -39,7 +42,7 @@ public class HttpRequest {
     public String getBody(BufferedReader br, int contentLength) throws IOException {
         char[] body = new char[contentLength];
         br.read(body);
-        logger.debug("bodyLine:{}", new String(body));
+        logger.debug("[body-Line] {}", new String(body));
         return new String(body);
     }
 
