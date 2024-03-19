@@ -33,6 +33,17 @@ public class HttpResponse {
         }
     }
 
+    public void response302Header(DataOutputStream dos, String location) {
+        try {
+            logger.debug("location:{}", location);
+            dos.writeBytes("HTTP/1.1 302 Found\r\n");
+            dos.writeBytes("Location: " + location);
+            dos.writeBytes("\r\n");
+        } catch (IOException e) {
+            logger.error(e.getMessage());
+        }
+    }
+
     public void responseBody(DataOutputStream dos, byte[] body) {
         try {
             dos.write(body, 0, body.length);
