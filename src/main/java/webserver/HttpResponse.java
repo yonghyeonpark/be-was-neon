@@ -3,8 +3,7 @@ package webserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 
 public class HttpResponse {
 
@@ -15,6 +14,23 @@ public class HttpResponse {
 
     public HttpResponse(DataOutputStream dos) {
         this.dos = dos;
+    }
+
+    public byte[] readFile(String path) {
+        File file = new File(path);
+        if (!file.isFile()) {
+            logger.error("path가 올바르지 않습니다.");
+            return null;
+        }
+        byte[] bytes = new byte[(int) file.length()];
+        try (FileInputStream inputStream = new FileInputStream(file)) {
+            inputStream.read(bytes);
+        } catch (FileNotFoundException e) {
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return bytes;
     }
 
     public void response200Header(int lengthOfBodyContent, String contentType) {

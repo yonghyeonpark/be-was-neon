@@ -66,7 +66,7 @@ public class RequestHandler implements Runnable {
             }
 
             String contentType = httpRequest.getContentType(target);
-            byte[] file = httpRequest.readFile(DEFAULT_PATH + target);
+            byte[] file = httpResponse.readFile(DEFAULT_PATH + target);
             // 해당 경로에 파일이 존재하지 않을 때
             if (file == null) {
                 httpResponse.response404Header(contentType);

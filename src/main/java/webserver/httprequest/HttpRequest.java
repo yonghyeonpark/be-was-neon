@@ -5,7 +5,8 @@ import org.slf4j.LoggerFactory;
 import webserver.ContentType;
 import webserver.RequestHandler;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
 import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -58,23 +59,6 @@ public class HttpRequest {
             parameters.put(split[0], split[1]);
         }
         return parameters;
-    }
-
-    public byte[] readFile(String path) {
-        File file = new File(path);
-        if (!file.isFile()) {
-            logger.error("path가 올바르지 않습니다.");
-            return null;
-        }
-        byte[] bytes = new byte[(int) file.length()];
-        try (FileInputStream inputStream = new FileInputStream(file)) {
-            inputStream.read(bytes);
-        } catch (FileNotFoundException e) {
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return bytes;
     }
 
     public void printHeaderLinesLog() {
