@@ -3,6 +3,7 @@ package webserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import service.QueryProcessor;
+import session.SessionManager;
 import webserver.httprequest.HttpRequest;
 
 import java.io.*;
@@ -39,12 +40,29 @@ public class RequestHandler implements Runnable {
             HttpResponse httpResponse = new HttpResponse();
             DataOutputStream dos = new DataOutputStream(out);
             String target = httpRequest.getTarget();
-            // 회원가입 요청에 대한 처리
-            if (httpRequest.getMethod().equalsIgnoreCase("POST") && target.equals("/user/create")) {
-                String body = httpRequest.getBody(br, Integer.parseInt(headers.get("Content-Length")));
-                Map<String, String> parameters = httpRequest.parseQuery(body);
-                QueryProcessor.userJoin(parameters);
-                httpResponse.response302Header(dos, "/index.html");
+            // post 요청에 대한 처리
+            if (httpRequest.getMethod().equalsIgnoreCase("POST")) {
+                // 회원 가입 처리
+                if (target.equals("/user/create")) {
+                    String body = httpRequest.getBody(br, Integer.parseInt(headers.get("Content-Length")));
+                    Map<String, String> parameters = httpRequest.parseQuery(body);
+                    QueryProcessor.userJoin(parameters);
+                    httpResponse.response302Header(dos, "/index.html");
+                }
+                // 로그인 처리
+                if (target.equals("/user/login")) {
+                    String body = httpRequest.getBody(br, Integer.parseInt(headers.get("Content-Length")));
+                    Map<String, String> parameters = httpRequest.parseQuery(body);
+
+                    if (QueryProcessor.checkLogin(parameters)) {
+                        // 성공 페이지 리다이렉션
+                        httpResponse.response302Header(dos, "/index.html", SessionManager.generateSessionId());
+                        return;
+                    }
+                    // 실패 페이지로 리다이렉션
+                    httpResponse.response302Header(dos, "/login/failed.html");
+                    return;
+                }
             }
 
             String contentType = httpRequest.getContentType(target);
