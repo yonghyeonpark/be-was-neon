@@ -11,7 +11,13 @@ public class HttpResponse {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
     private static final String NOT_FOUND_ERROR_MESSAGE = "<h1>File Not Found!</h1>";
 
-    public void response200Header(DataOutputStream dos, int lengthOfBodyContent, String contentType) {
+    private final DataOutputStream dos;
+
+    public HttpResponse(DataOutputStream dos) {
+        this.dos = dos;
+    }
+
+    public void response200Header(int lengthOfBodyContent, String contentType) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
             dos.writeBytes("Content-Type: "+ contentType + "\r\n");
@@ -22,7 +28,7 @@ public class HttpResponse {
         }
     }
 
-    public void response404Header(DataOutputStream dos, String contentType) {
+    public void response404Header(String contentType) {
         try {
             dos.writeBytes("HTTP/1.1 404 Not Found\r\n");
             dos.writeBytes("Content-Type: "+ contentType + "\r\n");
@@ -33,7 +39,7 @@ public class HttpResponse {
         }
     }
 
-    public void response302Header(DataOutputStream dos, String location) {
+    public void response302Header(String location) {
         try {
             logger.debug("location:{}", location);
             dos.writeBytes("HTTP/1.1 302 Found\r\n");
@@ -44,7 +50,7 @@ public class HttpResponse {
         }
     }
 
-    public void response302Header(DataOutputStream dos, String location, String sessionId) {
+    public void response302Header(String location, String sessionId) {
         try {
             logger.debug("location:{}", location);
             dos.writeBytes("HTTP/1.1 302 Found\r\n");
@@ -56,7 +62,7 @@ public class HttpResponse {
         }
     }
 
-    public void responseBody(DataOutputStream dos, byte[] body) {
+    public void responseBody(byte[] body) {
         try {
             dos.write(body, 0, body.length);
             dos.flush();
@@ -65,7 +71,7 @@ public class HttpResponse {
         }
     }
 
-    public void responseBody(DataOutputStream dos) {
+    public void responseBody() {
         try {
             dos.write(NOT_FOUND_ERROR_MESSAGE.getBytes(), 0, NOT_FOUND_ERROR_MESSAGE.length());
             dos.flush();
