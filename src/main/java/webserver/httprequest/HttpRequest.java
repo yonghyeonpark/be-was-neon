@@ -1,31 +1,49 @@
-package webserver;
+package webserver.httprequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import webserver.ContentType;
+import webserver.RequestHandler;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class HttpRequest {
 
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
-    private final List<String> headerLines;
+    private StartLine startLine;
+    private Map<String, String> headers;
 
     public HttpRequest() {
-        this.headerLines = new ArrayList<>();
+        this.headers = new HashMap<>();
     }
 
-    public String getTarget(String line) {
-        String[] requestLine = line.split(" ");
-        return requestLine[1];
+    public void readStartLine(BufferedReader br) throws IOException {
+        startLine = new StartLine(br.readLine());
+    }
+
+    public void readHeaderLines(BufferedReader br) throws IOException {
+        String headerLine;
+        while (true) {
+            headerLine = br.readLine();
+            if (headerLine.isEmpty()) {
+                break;
+            }
+            String[] split = headerLine.split(":", 2);
+            if (split.length == 2) {
+                headers.put(split[0].trim(), split[1].trim());
+            }
+        }
+    }
+
+    public String getBody(BufferedReader br, int contentLength) throws IOException {
+        char[] body = new char[contentLength];
+        br.read(body);
+        logger.debug("[body-Line] {}", new String(body));
+        return new String(body);
     }
 
     public Map<String, String> parseQuery(String query) {
@@ -46,7 +64,7 @@ public class HttpRequest {
         File file = new File(path);
         if (!file.isFile()) {
             logger.error("path가 올바르지 않습니다.");
-            return new byte[0];
+            return null;
         }
         byte[] bytes = new byte[(int) file.length()];
         try (FileInputStream inputStream = new FileInputStream(file)) {
@@ -59,23 +77,31 @@ public class HttpRequest {
         return bytes;
     }
 
-    public void addHeaderLine(String headerLine) {
-        headerLines.add(headerLine);
-    }
-
-    public void printHeaderLineLog() {
-        for (String headerLine : headerLines) {
-            logger.debug("[header-line] {}", headerLine);
+    public void printHeaderLinesLog() {
+        for (Map.Entry<String, String> headerLine: headers.entrySet()) {
+            logger.debug("[header-line] {} = {}", headerLine.getKey(), headerLine.getValue());
         }
     }
 
     public String getContentType(String path) {
-        logger.debug("Path : {}", path);
+        logger.debug("path:{}", path);
         for (ContentType contentType : ContentType.values()) {
             if (path.contains(contentType.getName())) {
                 return contentType.getProcess();
             }
         }
         return "text/html";
+    }
+
+    public String getMethod() {
+        return startLine.getMethod();
+    }
+
+    public String getTarget() {
+        return startLine.getTarget();
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
     }
 }

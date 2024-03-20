@@ -3,6 +3,7 @@ package webserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import service.QueryProcessor;
+import webserver.httprequest.HttpRequest;
 
 import java.io.*;
 import java.net.Socket;
@@ -15,54 +16,45 @@ public class RequestHandler implements Runnable {
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
 
     private final Socket connection;
-    private final HttpRequest httpRequest;
-    private final HttpResponse httpResponse;
 
-    public RequestHandler(Socket connection, HttpRequest httpRequest, HttpResponse httpResponse) {
+    public RequestHandler(Socket connection) {
         this.connection = connection;
-        this.httpRequest = httpRequest;
-        this.httpResponse = httpResponse;
     }
-    
+
     public void run() {
         logger.debug("New Client Connect! Connected IP : {}, Port : {}", connection.getInetAddress(),
                 connection.getPort());
         try (InputStream in = connection.getInputStream();
              OutputStream out = connection.getOutputStream()) {
             BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-            // 사용자 요청 메시지의 request line을 읽어들임
-            String line = br.readLine();
-            String target = httpRequest.getTarget(line);
 
-            String[] splitTarget = target.split("\\?");
-            String path = splitTarget[0];
-            if (splitTarget.length == 2) {
-                String query = splitTarget[1];
-                Map<String, String> parameters = httpRequest.parseQuery(query);
-                QueryProcessor.userJoin(parameters);
-            }
+            HttpRequest httpRequest = new HttpRequest();
+            httpRequest.readStartLine(br);
 
             // 요청 헤더 처리
-            while (true) {
-                line = br.readLine();
-                if (line.isEmpty()) {
-                    break;
-                }
-                httpRequest.addHeaderLine(line);
-            }
-            httpRequest.printHeaderLineLog();
+            httpRequest.readHeaderLines(br);
+            Map<String, String> headers = httpRequest.getHeaders();
+            httpRequest.printHeaderLinesLog();
 
-            String contentType = httpRequest.getContentType(path);
+            HttpResponse httpResponse = new HttpResponse();
             DataOutputStream dos = new DataOutputStream(out);
-            byte[] file = httpRequest.readFile(DEFAULT_PATH + path);
+            String target = httpRequest.getTarget();
+            // 회원가입 요청에 대한 처리
+            if (httpRequest.getMethod().equalsIgnoreCase("POST") && target.equals("/user")) {
+                String body = httpRequest.getBody(br, Integer.parseInt(headers.get("Content-Length")));
+                Map<String, String> parameters = httpRequest.parseQuery(body);
+                QueryProcessor.userJoin(parameters);
+                httpResponse.response302Header(dos, "/index.html");
+            }
+
+            String contentType = httpRequest.getContentType(target);
+            byte[] file = httpRequest.readFile(DEFAULT_PATH + target);
             // 해당 경로에 파일이 존재하지 않을 때
-            if (file.length == 0) {
-                byte[] bytes = "<h1>File Not Found!</h1>".getBytes();
-                httpResponse.response404Header(dos, bytes.length, contentType);
-                httpResponse.responseBody(dos, bytes);
+            if (file == null) {
+                httpResponse.response404Header(dos, contentType);
+                httpResponse.responseBody(dos);
                 return;
             }
-
             httpResponse.response200Header(dos, file.length, contentType);
             httpResponse.responseBody(dos, file);
         } catch (IOException e) {
