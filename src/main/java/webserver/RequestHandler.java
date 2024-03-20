@@ -47,7 +47,7 @@ public class RequestHandler implements Runnable {
                     String body = httpRequest.getBody(br, Integer.parseInt(headers.get("Content-Length")));
                     Map<String, String> parameters = httpRequest.parseQuery(body);
                     QueryProcessor.userJoin(parameters);
-                    httpResponse.response302Header("/index.html");
+                    httpResponse.send302Response("/index.html");
                 }
                 // 로그인 처리
                 if (target.equals("/user/login")) {
@@ -56,11 +56,11 @@ public class RequestHandler implements Runnable {
 
                     if (QueryProcessor.checkLogin(parameters)) {
                         // 성공 페이지 리다이렉션
-                        httpResponse.response302Header("/index.html", SessionManager.generateSessionId());
+                        httpResponse.send302Response("/index.html", SessionManager.generateSessionId());
                         return;
                     }
                     // 실패 페이지로 리다이렉션
-                    httpResponse.response302Header("/login/failed.html");
+                    httpResponse.send302Response("/login/failed.html");
                     return;
                 }
             }
@@ -69,12 +69,10 @@ public class RequestHandler implements Runnable {
             byte[] file = httpResponse.readFile(DEFAULT_PATH + target);
             // 해당 경로에 파일이 존재하지 않을 때
             if (file == null) {
-                httpResponse.response404Header(contentType);
-                httpResponse.responseBody();
+                httpResponse.send404Response(contentType);
                 return;
             }
-            httpResponse.response200Header(file.length, contentType);
-            httpResponse.responseBody(file);
+            httpResponse.send200Response(file, contentType);
         } catch (IOException e) {
             logger.error(e.getMessage());
         }

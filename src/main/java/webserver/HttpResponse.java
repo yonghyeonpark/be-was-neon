@@ -33,7 +33,25 @@ public class HttpResponse {
         return bytes;
     }
 
-    public void response200Header(int lengthOfBodyContent, String contentType) {
+    public void send200Response(byte[] file, String contentType) {
+        response200Header(file.length, contentType);
+        responseBody(file);
+    }
+
+    public void send404Response(String contentType) {
+        response404Header(contentType);
+        responseBody();
+    }
+
+    public void send302Response(String location) {
+        response302Header(location);
+    }
+
+    public void send302Response(String location, String sessionId) {
+        response302Header(location, sessionId);
+    }
+
+    private void response200Header(int lengthOfBodyContent, String contentType) {
         try {
             dos.writeBytes("HTTP/1.1 200 OK \r\n");
             dos.writeBytes("Content-Type: "+ contentType + "\r\n");
@@ -44,7 +62,7 @@ public class HttpResponse {
         }
     }
 
-    public void response404Header(String contentType) {
+    private void response404Header(String contentType) {
         try {
             dos.writeBytes("HTTP/1.1 404 Not Found\r\n");
             dos.writeBytes("Content-Type: "+ contentType + "\r\n");
@@ -55,7 +73,7 @@ public class HttpResponse {
         }
     }
 
-    public void response302Header(String location) {
+    private void response302Header(String location) {
         try {
             logger.debug("location:{}", location);
             dos.writeBytes("HTTP/1.1 302 Found\r\n");
@@ -66,7 +84,7 @@ public class HttpResponse {
         }
     }
 
-    public void response302Header(String location, String sessionId) {
+    private void response302Header(String location, String sessionId) {
         try {
             logger.debug("location:{}", location);
             dos.writeBytes("HTTP/1.1 302 Found\r\n");
@@ -78,7 +96,7 @@ public class HttpResponse {
         }
     }
 
-    public void responseBody(byte[] body) {
+    private void responseBody(byte[] body) {
         try {
             dos.write(body, 0, body.length);
             dos.flush();
@@ -87,7 +105,7 @@ public class HttpResponse {
         }
     }
 
-    public void responseBody() {
+    private void responseBody() {
         try {
             dos.write(NOT_FOUND_ERROR_MESSAGE.getBytes(), 0, NOT_FOUND_ERROR_MESSAGE.length());
             dos.flush();
