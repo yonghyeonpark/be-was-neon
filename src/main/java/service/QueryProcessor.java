@@ -20,4 +20,14 @@ public class QueryProcessor {
         Database.addUser(joinUser);
         logger.debug("joinUser : {}", joinUser);
     }
+
+    public static boolean checkLogin(Map<String, String> parameters) {
+        String loginId = parameters.get("userId");
+        String password = parameters.get("password");
+        User findUser = Database.findUserById(loginId);
+        if (findUser == null) {
+            return false;
+        }
+        return findUser.getPassword().equals(password);
+    }
 }
