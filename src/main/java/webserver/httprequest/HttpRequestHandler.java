@@ -4,6 +4,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import service.QueryManager;
 import session.SessionManager;
+import webserver.ContentType;
 import webserver.MainHandler;
 import webserver.httpresponse.HttpResponse;
 
@@ -15,43 +16,60 @@ import java.util.Map;
 
 public class HttpRequestHandler {
 
+    private static final String DEFAULT_PATH = "./src/main/resources/static";
     private static final Logger logger = LoggerFactory.getLogger(MainHandler.class);
 
-    public static HttpResponse processUri(HttpRequest httpRequest) {
+    public static HttpResponse getUriProcessResult(HttpRequest httpRequest) {
         final HttpRequest received = httpRequest;
         if (received.isPost()) {
-            return processPost(received);
+            return getPostResult(received);
         }
         if (received.isGet()) {
-            // 파일 존재 확인
+            return getGetResult(received);
         }
         return null;
     }
-    
-    private static HttpResponse processPost(HttpRequest received) {
+
+    private static HttpResponse getPostResult(HttpRequest received) {
         String body = received.getBody();
         if (received.isMatchUri("/user/create")) {
-            Map<String, String> parameters = QueryManager.parseQuery(body);
-            QueryManager.userJoin(parameters);
-            return new HttpResponse("HTTP/1.1 302 Found", "/index.html");
+            return getJoinResult(body);
         }
 
         if (received.isMatchUri("/user/login")) {
-            Map<String, String> parameters = QueryManager.parseQuery(body);
-            // 로그인 성공
-            if (QueryManager.checkLogin(parameters)) {
-                received.setLocation("/index.html");
-                return new HttpResponse("HTTP/1.1 302 Found", "/index.html", SessionManager.generateSessionId());
-            }
-            // 로그인 실패
-            received.setLocation("/login/failed.html");
-            return new HttpResponse("HTTP/1.1 302 Found", "/login/failed.html");
+            return getLoginResult(body);
         }
         return null;
     }
 
-    public static byte[] readFile(String path) {
-        File file = new File(path);
+    private static HttpResponse getGetResult(HttpRequest received) {
+        String target = received.getTarget();
+        byte[] file = readFile(target);
+        String contentType = getContentType(target);
+        if (file == null) {
+            return new HttpResponse("HTTP/1.1 404 Not Found");
+        }
+        return new HttpResponse("HTTP/1.1 200 OK", file, contentType);
+    }
+
+    private static HttpResponse getJoinResult(String body) {
+        Map<String, String> parameters = QueryManager.parseQuery(body);
+        QueryManager.userJoin(parameters);
+        return new HttpResponse("HTTP/1.1 302 Found", "/index.html");
+    }
+
+    private static HttpResponse getLoginResult(String body) {
+        Map<String, String> parameters = QueryManager.parseQuery(body);
+        // 로그인 성공
+        if (QueryManager.checkLogin(parameters)) {
+            return new HttpResponse("HTTP/1.1 302 Found", "/index.html", SessionManager.generateSessionId());
+        }
+        // 로그인 실패
+        return new HttpResponse("HTTP/1.1 302 Found", "/login/failed.html");
+    }
+
+    private static byte[] readFile(String path) {
+        File file = new File(DEFAULT_PATH + path);
         if (!file.isFile()) {
             logger.error("path가 올바르지 않습니다.");
             return null;
@@ -65,5 +83,15 @@ public class HttpRequestHandler {
             e.printStackTrace();
         }
         return bytes;
+    }
+
+    private static String getContentType(String path) {
+        logger.debug("path:{}", path);
+        for (ContentType contentType : ContentType.values()) {
+            if (path.contains(contentType.getName())) {
+                return contentType.getProcess();
+            }
+        }
+        return "text/html";
     }
 }
