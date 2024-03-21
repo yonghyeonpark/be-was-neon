@@ -2,14 +2,14 @@ package webserver;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import service.QueryProcessor;
-import session.SessionManager;
 import webserver.httprequest.HttpRequest;
+import webserver.httprequest.HttpRequestHandler;
+import webserver.httprequest.HttpRequestProcessor;
+import webserver.httpresponse.HttpResponse;
 
 import java.io.*;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
 
 public class RequestHandler implements Runnable {
 
@@ -27,43 +27,49 @@ public class RequestHandler implements Runnable {
                 connection.getPort());
         try (InputStream in = connection.getInputStream();
              OutputStream out = connection.getOutputStream()) {
-            BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+            BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
 
-            HttpRequest httpRequest = new HttpRequest();
-            httpRequest.readStartLine(br);
+            // 새로운 코드ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+            HttpRequest httpRequest = new HttpRequest(new HttpRequestProcessor(bufferedReader));
+            httpRequest.printHeaderLinesLog();
 
-            // 요청 헤더 처리
-            httpRequest.readHeaderLines(br);
+            HttpRequest processedRequest = HttpRequestHandler.uriProcess(httpRequest);
+            //ㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡㅡ
+
+
+            /*// 요청 헤더 처리
+            httpRequest.readHeaderLines(bufferedReader);
             Map<String, String> headers = httpRequest.getHeaders();
             httpRequest.printHeaderLinesLog();
+            String target = httpRequest.getTarget();*/
 
             DataOutputStream dos = new DataOutputStream(out);
             HttpResponse httpResponse = new HttpResponse(dos);
-            String target = httpRequest.getTarget();
-            // post 요청에 대한 처리
-            if (httpRequest.getMethod().equalsIgnoreCase("POST")) {
+
+             // post 요청에 대한 처리
+            /*if (httpRequest.getMethod().equalsIgnoreCase("POST")) {
                 // 회원 가입 처리
                 if (target.equals("/user/create")) {
-                    String body = httpRequest.getBody(br, Integer.parseInt(headers.get("Content-Length")));
+                    String body = httpRequest.getBody(bufferedReader, Integer.parseInt(headers.get("Content-Length")));
                     Map<String, String> parameters = httpRequest.parseQuery(body);
-                    QueryProcessor.userJoin(parameters);
+                    QueryManager.userJoin(parameters);
                     httpResponse.send302Response("/index.html");
+                    return;
                 }
                 // 로그인 처리
                 if (target.equals("/user/login")) {
-                    String body = httpRequest.getBody(br, Integer.parseInt(headers.get("Content-Length")));
+                    String body = httpRequest.getBody(bufferedReader, Integer.parseInt(headers.get("Content-Length")));
                     Map<String, String> parameters = httpRequest.parseQuery(body);
 
-                    if (QueryProcessor.checkLogin(parameters)) {
+                    if (QueryManager.checkLogin(parameters)) {
                         // 성공 페이지 리다이렉션
                         httpResponse.send302Response("/index.html", SessionManager.generateSessionId());
                         return;
                     }
                     // 실패 페이지로 리다이렉션
                     httpResponse.send302Response("/login/failed.html");
-                    return;
                 }
-            }
+            }*/
 
             String contentType = httpRequest.getContentType(target);
             byte[] file = httpResponse.readFile(DEFAULT_PATH + target);
