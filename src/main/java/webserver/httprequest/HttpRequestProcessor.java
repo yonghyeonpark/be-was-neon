@@ -2,7 +2,6 @@ package webserver.httprequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import webserver.ContentType;
 import webserver.MainHandler;
 
 import java.io.BufferedReader;
@@ -40,20 +39,13 @@ public class HttpRequestProcessor {
         return headers;
     }
 
-    public String getBody(int contentLength) throws IOException {
-        char[] body = new char[contentLength];
+    public String getBody(String contentLength) throws IOException {
+        if (contentLength == null) {
+            return null;
+        }
+        char[] body = new char[Integer.parseInt(contentLength)];
         bufferedReader.read(body);
         logger.debug("[body-Line] {}", new String(body));
         return new String(body);
-    }
-
-    public String getContentType(String path) {
-        logger.debug("path:{}", path);
-        for (ContentType contentType : ContentType.values()) {
-            if (path.contains(contentType.getName())) {
-                return contentType.getProcess();
-            }
-        }
-        return "text/html";
     }
 }
