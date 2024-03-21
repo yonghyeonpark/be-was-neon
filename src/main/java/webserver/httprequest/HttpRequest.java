@@ -26,4 +26,32 @@ public class HttpRequest {
             logger.debug("[header-line] {} = {}", headerLine.getKey(), headerLine.getValue());
         }
     }
+
+    public boolean isPost() {
+        return startLine.getMethod().equalsIgnoreCase("POST");
+    }
+
+    public boolean isGet() {
+        return startLine.getMethod().equalsIgnoreCase("GET");
+    }
+
+    public boolean isMatchUri(String uri) {
+        return startLine.getTarget().equals(uri);
+    }
+
+    /*public boolean isExistHeaderType(String headerType) {
+        return headers.containsKey(headerType);
+    }
+
+    public boolean isExistFile() {
+
+    }*/
+
+    public void setLocation(String location) {
+        headers.put("Location", location);
+    }
+
+    public String getBody() {
+        return body;
+    }
 }
