@@ -3,7 +3,7 @@ package webserver.httprequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.ContentType;
-import webserver.RequestHandler;
+import webserver.MainHandler;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class HttpRequestProcessor {
 
-    private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(MainHandler.class);
 
     private final BufferedReader bufferedReader;
 

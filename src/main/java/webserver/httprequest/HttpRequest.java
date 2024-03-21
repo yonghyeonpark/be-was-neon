@@ -2,14 +2,14 @@ package webserver.httprequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import webserver.RequestHandler;
+import webserver.MainHandler;
 
 import java.io.IOException;
 import java.util.Map;
 
 public class HttpRequest {
 
-    private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(MainHandler.class);
 
     private final StartLine startLine;
     private final Map<String, String> headers;
