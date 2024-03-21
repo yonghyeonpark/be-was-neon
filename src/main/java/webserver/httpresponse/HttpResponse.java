@@ -32,6 +32,14 @@ public class HttpResponse {
         this.sessionId = null;
     }
 
+    public HttpResponse(String statusCode) {
+        this.statusCode = statusCode;
+        this.file = null;
+        this.contentType = null;
+        this.location = null;
+        this.sessionId = null;
+    }
+
     public String getStatusCode() {
         return statusCode;
     }
