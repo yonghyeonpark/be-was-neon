@@ -18,7 +18,7 @@ public class HttpRequest {
     public HttpRequest(HttpRequestProcessor httpRequestProcessor) throws IOException {
         this.startLine = httpRequestProcessor.getStartLine();
         this.headers = httpRequestProcessor.getHeaderLines();
-        this.body = httpRequestProcessor.getBody(Integer.parseInt(headers.get("Content-Length")));
+        this.body = httpRequestProcessor.getBody(headers.get("Content-Length"));
     }
 
     public void printHeaderLinesLog() {
@@ -39,19 +39,11 @@ public class HttpRequest {
         return startLine.getTarget().equals(uri);
     }
 
-    /*public boolean isExistHeaderType(String headerType) {
-        return headers.containsKey(headerType);
-    }
-
-    public boolean isExistFile() {
-
-    }*/
-
-    public void setLocation(String location) {
-        headers.put("Location", location);
-    }
-
     public String getBody() {
         return body;
+    }
+
+    public String getTarget() {
+        return startLine.getTarget();
     }
 }
