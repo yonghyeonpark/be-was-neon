@@ -7,7 +7,6 @@ import webserver.RequestHandler;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -46,20 +45,6 @@ public class HttpRequestProcessor {
         bufferedReader.read(body);
         logger.debug("[body-Line] {}", new String(body));
         return new String(body);
-    }
-
-    public Map<String, String> parseQuery(String query) {
-        Map<String, String> parameters = new HashMap<>();
-        if (query == null || query.isEmpty()) {
-            return parameters;
-        }
-        String decodingQuery = URLDecoder.decode(query);
-        String[] queryArr = decodingQuery.split("&");
-        for (String keyValue : queryArr) {
-            String[] split = keyValue.split("=");
-            parameters.put(split[0], split[1]);
-        }
-        return parameters;
     }
 
     public String getContentType(String path) {

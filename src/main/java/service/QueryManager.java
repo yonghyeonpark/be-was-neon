@@ -6,11 +6,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.RequestHandler;
 
+import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.Map;
 
-public class QueryProcessor {
+public class QueryManager {
 
     private static final Logger logger = LoggerFactory.getLogger(RequestHandler.class);
+
+    public static Map<String, String> parseQuery(String query) {
+        Map<String, String> parameters = new HashMap<>();
+        if (query == null || query.isEmpty()) {
+            return parameters;
+        }
+        String decodingQuery = URLDecoder.decode(query);
+        String[] queryArr = decodingQuery.split("&");
+        for (String keyValue : queryArr) {
+            String[] split = keyValue.split("=");
+            parameters.put(split[0], split[1]);
+        }
+        return parameters;
+    }
 
     public static void userJoin(Map<String, String> parameters) {
         User joinUser = new User(parameters.get("userId"),
