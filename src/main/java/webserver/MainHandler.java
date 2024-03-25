@@ -28,10 +28,15 @@ public class MainHandler implements Runnable {
         try (InputStream in = connection.getInputStream();
              OutputStream out = connection.getOutputStream()) {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+
+            // 요청 메시지를 처리하여 HttpRequest에 정보 저장
             HttpRequest httpRequest = new HttpRequest(new HttpRequestProcessor(bufferedReader));
             httpRequest.printHeaderLinesLog();
 
-            HttpResponse httpResponse = HttpRequestHandler.getUriProcessResult(httpRequest);
+            // HttpRequest를 이용하여 응답 정보를 생성 후, HttpResponse에 저장
+            HttpRequestHandler httpRequestHandler = new HttpRequestHandler(httpRequest);
+            HttpResponse httpResponse = httpRequestHandler.getResponseProcessResult();
+            
             DataOutputStream dos = new DataOutputStream(out);
             HttpResponseProcessor httpResponseProcessor = new HttpResponseProcessor(dos, httpResponse);
             httpResponseProcessor.sendResponse();

@@ -19,18 +19,23 @@ public class HttpRequestHandler {
     private static final String DEFAULT_PATH = "./src/main/resources/static";
     private static final Logger logger = LoggerFactory.getLogger(MainHandler.class);
 
-    public static HttpResponse getUriProcessResult(HttpRequest httpRequest) {
-        final HttpRequest received = httpRequest;
-        if (received.isPost()) {
-            return getPostResult(received);
+    private final HttpRequest httpRequest;
+
+    public HttpRequestHandler(HttpRequest httpRequest) {
+        this.httpRequest = httpRequest;
+    }
+
+    public HttpResponse getResponseProcessResult() {
+        if (httpRequest.isPost()) {
+            return getPostResult(httpRequest);
         }
-        if (received.isGet()) {
-            return getGetResult(received);
+        if (httpRequest.isGet()) {
+            return getGetResult(httpRequest);
         }
         return null;
     }
 
-    private static HttpResponse getPostResult(HttpRequest received) {
+    private HttpResponse getPostResult(HttpRequest received) {
         String body = received.getBody();
         if (received.isMatchUri("/user/create")) {
             return getJoinResult(body);
@@ -42,7 +47,7 @@ public class HttpRequestHandler {
         return null;
     }
 
-    private static HttpResponse getGetResult(HttpRequest received) {
+    private HttpResponse getGetResult(HttpRequest received) {
         String target = received.getTarget();
         byte[] file = readFile(target);
         String contentType = getContentType(target);
@@ -52,13 +57,13 @@ public class HttpRequestHandler {
         return new HttpResponse("HTTP/1.1 200 OK", file, contentType);
     }
 
-    private static HttpResponse getJoinResult(String body) {
+    private HttpResponse getJoinResult(String body) {
         Map<String, String> parameters = QueryManager.parseQuery(body);
         QueryManager.userJoin(parameters);
         return new HttpResponse("HTTP/1.1 302 Found", "/index.html");
     }
 
-    private static HttpResponse getLoginResult(String body) {
+    private HttpResponse getLoginResult(String body) {
         Map<String, String> parameters = QueryManager.parseQuery(body);
         // 로그인 성공
         if (QueryManager.checkLogin(parameters)) {
@@ -68,7 +73,7 @@ public class HttpRequestHandler {
         return new HttpResponse("HTTP/1.1 302 Found", "/login/failed.html");
     }
 
-    private static byte[] readFile(String path) {
+    private byte[] readFile(String path) {
         File file = new File(DEFAULT_PATH + path);
         if (!file.isFile()) {
             logger.error("path가 올바르지 않습니다.");
@@ -85,7 +90,7 @@ public class HttpRequestHandler {
         return bytes;
     }
 
-    private static String getContentType(String path) {
+    private String getContentType(String path) {
         logger.debug("path:{}", path);
         for (ContentType contentType : ContentType.values()) {
             if (path.contains(contentType.getName())) {
