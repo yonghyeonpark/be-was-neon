@@ -12,7 +12,7 @@ public class HttpRequest {
 
     private final StartLine startLine;
     private final Headers headers;
-    private final String body;
+    private final Body body;
 
     public HttpRequest(HttpRequestProcessor httpRequestProcessor) throws IOException {
         this.startLine = httpRequestProcessor.getStartLine();
@@ -38,7 +38,7 @@ public class HttpRequest {
         return startLine.getTarget().equals(uri);
     }
 
-    public String getBody() {
+    public Body getBody() {
         return body;
     }
 

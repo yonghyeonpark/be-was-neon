@@ -37,13 +37,13 @@ public class HttpRequestProcessor {
         return headers;
     }
 
-    public String getBody(String contentLength) throws IOException {
+    public Body getBody(String contentLength) throws IOException {
         if (contentLength == null) {
             return null;
         }
         char[] body = new char[Integer.parseInt(contentLength)];
         bufferedReader.read(body);
         logger.debug("[body-Line] {}", new String(body));
-        return new String(body);
+        return new Body(new String(body));
     }
 }

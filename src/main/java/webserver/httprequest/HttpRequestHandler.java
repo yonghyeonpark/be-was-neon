@@ -36,7 +36,7 @@ public class HttpRequestHandler {
     }
 
     private HttpResponse getPostResult(HttpRequest received) {
-        String body = received.getBody();
+        Body body = received.getBody();
         if (received.isMatchUri("/user/create")) {
             return getJoinResult(body);
         }
@@ -57,14 +57,14 @@ public class HttpRequestHandler {
         return new HttpResponse("HTTP/1.1 200 OK", file, contentType);
     }
 
-    private HttpResponse getJoinResult(String body) {
-        Map<String, String> parameters = QueryManager.parseQuery(body);
+    private HttpResponse getJoinResult(Body body) {
+        Map<String, String> parameters = QueryManager.parseQuery(body.getContent());
         QueryManager.userJoin(parameters);
         return new HttpResponse("HTTP/1.1 302 Found", "/index.html");
     }
 
-    private HttpResponse getLoginResult(String body) {
-        Map<String, String> parameters = QueryManager.parseQuery(body);
+    private HttpResponse getLoginResult(Body body) {
+        Map<String, String> parameters = QueryManager.parseQuery(body.getContent());
         // 로그인 성공
         if (QueryManager.checkLogin(parameters)) {
             return new HttpResponse("HTTP/1.1 302 Found", "/index.html", SessionManager.generateSessionId());
