@@ -6,8 +6,6 @@ import webserver.MainHandler;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
 
 public class HttpRequestProcessor {
 
@@ -23,8 +21,8 @@ public class HttpRequestProcessor {
         return new StartLine(bufferedReader.readLine());
     }
 
-    public Map<String, String> getHeaderLines() throws IOException {
-        Map<String, String> headers = new HashMap<>();
+    public Headers getHeaders() throws IOException {
+        Headers headers = new Headers();
         String headerLine;
         while (true) {
             headerLine = bufferedReader.readLine();
@@ -33,7 +31,7 @@ public class HttpRequestProcessor {
             }
             String[] split = headerLine.split(":", 2);
             if (split.length == 2) {
-                headers.put(split[0].trim(), split[1].trim());
+                headers.addHeader(split[0].trim(), split[1].trim());
             }
         }
         return headers;
